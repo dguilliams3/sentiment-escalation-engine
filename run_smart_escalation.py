@@ -12,16 +12,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "agents"))
 
 from logging_utils import configure_logging, ensure_log_dir
 
-from datastore import get_stores, DecisionLogStore
+from datastore import get_stores, DecisionLogStore, EscalationStore
 from GPTClient import GPTClient
-from pipeline import (
-    load_classified_reviews,
-    load_cooldown_state,
-    group_reviews_by_product,
-    evaluate_product,
-    save_json,
-    write_decision_log
-)
+from pipeline import group_reviews_by_product, evaluate_product
+
 from config import *  # Assuming config defines COOLDOWN_HOURS and ESCALATION_THRESHOLD
 from novelty_agent import NoveltyAgent
 
@@ -35,6 +29,7 @@ review_store, cooldown_store = get_stores()
 reviews = review_store.load_reviews()
 cooldown_state = cooldown_store.load_cooldowns()
 decision_log = DecisionLogStore()
+escalation_store = EscalationStore()
 
 # Initialize variables
 escalations = []
@@ -74,7 +69,7 @@ for product_id, product_reviews in groups.items():
         escalations.append(escalation_data)
 
 # Save outputs using modular save_json function
-review_store.save_reviews(reviews)  # optional: only if you mutate reviews
+escalation_store.save(escalations)
 cooldown_store.save_cooldowns(cooldown_state)
 decision_log.write(log_lines)
 

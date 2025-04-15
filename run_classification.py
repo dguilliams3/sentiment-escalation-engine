@@ -35,7 +35,16 @@ sentiment_agent = SentimentAgent(sentiment_client)
 explain_agent = ExplainabilityAgent(explain_client)
 
 review_store, _ = get_stores()
+
 reviews = review_store.load_reviews()
+if not reviews:
+    try:
+        with open("data/sample_reviews.json", "r", encoding="utf-8") as f:
+            reviews = json.load(f)
+        logging.info("No reviews found in store — loaded fallback sample_reviews.json")
+    except FileNotFoundError:
+        logging.error("No reviews found and no sample_reviews.json file available.")
+        sys.exit(1)
 
 classified_reviews = []
 for review in reviews:

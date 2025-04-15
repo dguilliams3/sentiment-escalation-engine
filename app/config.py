@@ -33,3 +33,4 @@ COOLDOWN_FILE = os.getenv("COOLDOWN_FILE", "output/cooldown_state.json")
 DECISION_LOG_FILE = os.getenv("DECISION_LOG_FILE", "output/escalation_decision_log.jsonl")
 
 DATA_STORE = os.getenv("DATA_STORE", "local")  # or "redis"
+CLASSIFIED_REVIEWS_FILE = os.getenv("CLASSIFIED_REVIEWS_FILE", "output/classified_reviews.json")

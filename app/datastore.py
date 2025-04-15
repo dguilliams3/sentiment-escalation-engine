@@ -2,7 +2,7 @@ import json
 import os
 import redis
 import logging
-from config import DATA_STORE, CLASSIFIED_REVIEWS_FILE, COOLDOWN_FILE
+from config import DATA_STORE
 
 # Base interface
 class ReviewStore:
@@ -106,3 +106,18 @@ class DecisionLogStore:
 
     def exists(self):
         return os.path.exists(self.path)
+
+class EscalationStore:
+    def __init__(self):
+        self.client = redis.Redis(host='localhost', port=6379, db=0)
+        self.key = "escalations"
+
+    def save(self, escalations):
+        self.client.set(self.key, json.dumps(escalations))
+
+    def load(self):
+        data = self.client.get(self.key)
+        return json.loads(data) if data else []
+
+    def clear(self):
+        self.client.delete(self.key)
