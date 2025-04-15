@@ -4,6 +4,7 @@
     {"product_id": "widget-01", "text": "Completely useless, doesn't even light up."},
     {"product_id": "widget-01", "text": "Dead on arrival. No power."},
     {"product_id": "widget-01", "text": "Still won't work after replacing batteries."},
+    {"product_id": "widget-01", "text": "The motor emitted a high-pitched noise and started smoking."},      
     {"product_id": "widget-02", "text": "Surprisingly good quality!"},
     {"product_id": "widget-03", "text": "Burned my hand! Unsafe!"},
     {"product_id": "widget-03", "text": "Smelled like something was melting."},
