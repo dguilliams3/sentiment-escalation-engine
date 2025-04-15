@@ -1,7 +1,17 @@
 [
-    {"product_id": "widget-01", "text": "It just doesn’t turn on."},
+    {"product_id": "widget-01", "text": "It just doesn't turn on."},
     {"product_id": "widget-01", "text": "Worked for a week, then died."},
+    {"product_id": "widget-01", "text": "Completely useless, doesn't even light up."},
+    {"product_id": "widget-01", "text": "Dead on arrival. No power."},
+    {"product_id": "widget-01", "text": "Still won't work after replacing batteries."},
     {"product_id": "widget-02", "text": "Surprisingly good quality!"},
-    {"product_id": "widget-03", "text": "Burned my hand! Unsafe!"}
+    {"product_id": "widget-03", "text": "Burned my hand! Unsafe!"},
+    {"product_id": "widget-03", "text": "Smelled like something was melting."},
+    {"product_id": "widget-03", "text": "Definitely a fire hazard. Unacceptable."},
+    {"product_id": "widget-03", "text": "Exploded when plugged in."},
+    {"product_id": "widget-03", "text": "Almost set my kitchen on fire."},
+    {"product_id": "widget-04", "text": "Fast shipping, but the box was damaged."},
+    {"product_id": "widget-04", "text": "Cosmetic defect, but works fine."},
+    {"product_id": "widget-04", "text": "Good enough for the price."}
   ]
   
