@@ -6,8 +6,9 @@ from collections import defaultdict
 import sys
 import logging
 
-# Add app folder to path for local modules
+# Add app and agents folders to path for local modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "app"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "agents"))
 
 from logging_utils import configure_logging, ensure_log_dir
 from GPTClient import GPTClient
@@ -20,16 +21,12 @@ from pipeline import (
     write_decision_log
 )
 from config import *  # Assuming config defines COOLDOWN_HOURS and ESCALATION_THRESHOLD
+from novelty_agent import NoveltyAgent
 
 # Configure application-level logging
 APP_LOG_PATH = "output/smart_escalation.log"
 ensure_log_dir(APP_LOG_PATH)
 configure_logging(APP_LOG_PATH)
-
-# Constants for file paths and thresholds
-COOLDOWN_FILE = "output/cooldown_state.json"
-DECISION_LOG_FILE = "output/escalation_decision_log.jsonl"
-ESCALATIONS_OUTPUT = "output/escalations.json"
 
 # Load classified reviews and cooldown state using modular functions
 reviews = load_classified_reviews()
@@ -39,7 +36,10 @@ cooldown_state = load_cooldown_state()
 escalations = []
 log_lines = []
 now = datetime.now(timezone.utc)
-client = GPTClient()
+
+# Assign GPT Client and Novelty Agent
+novelty_client = GPTClient()
+novelty_agent = NoveltyAgent(novelty_client)
 
 # Group reviews by product
 groups = group_reviews_by_product(reviews)
@@ -52,7 +52,7 @@ for product_id, product_reviews in groups.items():
         product_reviews,
         cooldown_state,
         now,
-        client,
+        novelty_agent,
         COOLDOWN_HOURS,
         ESCALATION_THRESHOLD
     )
@@ -78,8 +78,3 @@ logging.info("Smart escalation complete. Results written to:")
 logging.info(f" - {ESCALATIONS_OUTPUT}")
 logging.info(f" - {COOLDOWN_FILE}")
 logging.info(f" - {DECISION_LOG_FILE}")
-
-print("Smart escalation complete. Results written to:")
-print(f" - {ESCALATIONS_OUTPUT}")
-print(f" - {COOLDOWN_FILE}")
-print(f" - {DECISION_LOG_FILE}")

@@ -1,5 +1,6 @@
 # General libraries
 dotenv
+ftfy
 
 # OpenAI & tokenizer support
 openai

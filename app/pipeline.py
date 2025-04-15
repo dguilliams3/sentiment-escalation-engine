@@ -34,7 +34,7 @@ def group_reviews_by_product(reviews):
         groups[r["product_id"]].append(r)
     return groups
 
-def evaluate_product(product_id, product_reviews, cooldown_state, now, client, cooldown_hours, escalation_threshold):
+def evaluate_product(product_id, product_reviews, cooldown_state, now, agent, cooldown_hours, escalation_threshold):
     # Filter negative reviews (using a case-insensitive match)
     neg_reviews = [r for r in product_reviews if "negative" in r.get("sentiment", "").lower()]
     neg_texts = [r["text"] for r in neg_reviews]
@@ -56,18 +56,8 @@ def evaluate_product(product_id, product_reviews, cooldown_state, now, client, c
         escalate = True
         reason = f"{len(neg_reviews)} negative reviews detected"
     elif under_cooldown:
-        prompt = f"""You're reviewing product complaints.
+        response = agent.assess_novelty(neg_texts[:-1], neg_texts[-1]).lower()
 
-Prior negative reviews:
-{chr(10).join('- ' + text for text in neg_texts[:-1])}
-
-Newest review:
-- {neg_texts[-1]}
-
-Does the newest review raise a novel or significantly different issue?
-Respond "yes" or "no" and briefly justify your answer.
-"""
-        response = client.classify_review(prompt).lower()
         if "yes" in response:
             escalate = True
             reason = "Novel issue detected during cooldown"

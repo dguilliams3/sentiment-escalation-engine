@@ -28,4 +28,6 @@ print(f"GPT_TEMPERATURE: {GPT_TEMPERATURE}")
 # --- ESCALATION VARIABLES ---
 COOLDOWN_HOURS = int(os.getenv("COOLDOWN_HOURS", 6))
 ESCALATION_THRESHOLD = int(os.getenv("ESCALATION_THRESHOLD", 3))
+ESCALATIONS_OUTPUT = os.getenv("ESCALATIONS_OUTPUT","output/escalations.json")
 COOLDOWN_FILE = os.getenv("COOLDOWN_FILE", "output/cooldown_state.json")
+DECISION_LOG_FILE = os.getenv("DECISION_LOG_FILE", "output/escalation_decision_log.jsonl")
