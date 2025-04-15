@@ -17,7 +17,7 @@ LOG_PASSWORD = os.getenv("LOG_PASSWORD", "password")
 LOG_FILE_PATH = os.getenv("LOG_FILE_PATH","./logs/context_log.log")
 
 # Now your environment variables, including OPENAI_API_KEY, will be loaded.
-GPT_MODEL = os.getenv("GPT_MODEL", "gpt-4o")
+GPT_MODEL = os.getenv("GPT_MODEL", "gpt-4o-mini")
 GPT_MAX_TOKENS = int(os.getenv("GPT_MAX_TOKENS", 6000))
 GPT_MAX_CONTEXT_TOKENS = int(os.getenv("GPT_MAX_CONTEXT_TOKENS", 20000))
 GPT_TEMPERATURE = 0.7

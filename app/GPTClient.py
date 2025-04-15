@@ -13,7 +13,7 @@ class GPTClient:
     A minimal GPT client for sentiment classification, built for the 
     Sentiment Escalation Engine MVP.
     """
-    def __init__(self, api_key=None, model="gpt-4o", max_tokens=50, prompt_template=None):
+    def __init__(self, api_key=None, model="gpt-4o-mini", max_tokens=50, prompt_template=None):
         # Retrieve API key from argument or environment variable.
         self._api_key = api_key if api_key else os.getenv('OPENAI_API_KEY')
         self.client = openai.OpenAI(api_key=self._api_key)
