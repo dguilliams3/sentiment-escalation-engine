@@ -11,11 +11,15 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "app"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "agents"))
 
 from GPTClient import GPTClient
+from datastore import get_stores
 from logging_utils import configure_logging, ensure_log_dir
+import logging
+
+# Agents
 from sentiment_agent import SentimentAgent
 from explainability_agent import ExplainabilityAgent
 
-import logging
+
 
 # Configure logging
 LOG_PATH = "output/classification.log"
@@ -30,9 +34,8 @@ explain_client = GPTClient()
 sentiment_agent = SentimentAgent(sentiment_client)
 explain_agent = ExplainabilityAgent(explain_client)
 
-# Load raw reviews
-with open("data/sample_reviews.json", "r", encoding="utf-8") as f:
-    reviews = json.load(f)
+review_store, _ = get_stores()
+reviews = review_store.load_reviews()
 
 classified_reviews = []
 for review in reviews:
@@ -56,7 +59,7 @@ for review in reviews:
 
 # Output results
 os.makedirs("output", exist_ok=True)
-with open("output/classified_reviews.json", "w", encoding="utf-8") as f:
-    json.dump(classified_reviews, f, indent=4, ensure_ascii=False)
 
-logging.info("Classification complete. Results saved to output/classified_reviews.json")
+review_store.save_reviews(classified_reviews)
+
+logging.info("Classification complete. Results saved to data store.")

@@ -8,3 +8,6 @@ tiktoken
 
 # Streamlit for front-end
 streamlit>=1.12.0
+
+# Back-end Data Management
+redis

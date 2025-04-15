@@ -11,6 +11,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "app"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "agents"))
 
 from logging_utils import configure_logging, ensure_log_dir
+
+from datastore import get_stores, DecisionLogStore
 from GPTClient import GPTClient
 from pipeline import (
     load_classified_reviews,
@@ -29,8 +31,10 @@ ensure_log_dir(APP_LOG_PATH)
 configure_logging(APP_LOG_PATH)
 
 # Load classified reviews and cooldown state using modular functions
-reviews = load_classified_reviews()
-cooldown_state = load_cooldown_state()
+review_store, cooldown_store = get_stores()
+reviews = review_store.load_reviews()
+cooldown_state = cooldown_store.load_cooldowns()
+decision_log = DecisionLogStore()
 
 # Initialize variables
 escalations = []
@@ -70,9 +74,9 @@ for product_id, product_reviews in groups.items():
         escalations.append(escalation_data)
 
 # Save outputs using modular save_json function
-save_json(escalations, ESCALATIONS_OUTPUT)
-save_json(cooldown_state, COOLDOWN_FILE)
-write_decision_log(log_lines, DECISION_LOG_FILE)
+review_store.save_reviews(reviews)  # optional: only if you mutate reviews
+cooldown_store.save_cooldowns(cooldown_state)
+decision_log.write(log_lines)
 
 logging.info("Smart escalation complete. Results written to:")
 logging.info(f" - {ESCALATIONS_OUTPUT}")

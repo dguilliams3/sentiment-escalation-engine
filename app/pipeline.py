@@ -4,29 +4,11 @@ import os
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 import logging
+import sys
 
-def load_json(filepath, encoding="utf-8"):
-    if os.path.exists(filepath):
-        with open(filepath, "r", encoding=encoding) as f:
-            return json.load(f)
-    return None
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "app"))
 
-def save_json(data, filepath, encoding="utf-8", indent=4, ensure_ascii=False):
-    with open(filepath, "w", encoding=encoding) as f:
-        json.dump(data, f, indent=indent, ensure_ascii=ensure_ascii)
-
-def load_classified_reviews(filepath="output/classified_reviews.json"):
-    reviews = load_json(filepath)
-    if reviews is None:
-        logging.warning(f"File {filepath} not found. Returning empty list.")
-        reviews = []
-    return reviews
-
-def load_cooldown_state(filepath="output/cooldown_state.json"):
-    state = load_json(filepath)
-    if state is None:
-        state = {}
-    return state
+from datastore import get_stores
 
 def group_reviews_by_product(reviews):
     groups = defaultdict(list)
