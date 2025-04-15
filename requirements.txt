@@ -1,0 +1,9 @@
+# General libraries
+dotenv
+
+# OpenAI & tokenizer support
+openai
+tiktoken
+
+# Streamlit for front-end
+streamlit>=1.12.0
