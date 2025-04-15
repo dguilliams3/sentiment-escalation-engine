@@ -1,10 +1,12 @@
 import os
+import sys
 import time
 import logging
 import tiktoken
 import openai
-from gpt_config import *
+from app.config import *
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "app"))
 # Configure basic logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]: %(message)s")
 
