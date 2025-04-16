@@ -24,22 +24,30 @@ configure_logging(LOG_PATH)
 
 # --- Load stores + client ---
 review_store, _ = get_stores()
-gpt_client = GPTClient()
+sentiment_agent = GPTClient()
 
 # --- Classification function ---
 def run_classification():
     logging.info("Starting classification pipeline...")
-    reviews = review_store.load_reviews()
+
+    if DATA_STORE == "redis":
+        redis_client = redis.Redis(host=REDIS_HOST, port=6379, db=0)
+        raw = redis_client.get(RAW_REVIEW_KEY)
+        reviews = json.loads(raw) if raw else []
+        if not reviews:
+            logging.warning("No raw reviews found in Redis.")
+    else:
+        reviews = review_store.load_reviews()
+        if not reviews:
+            logging.warning("No reviews found in local fallback.")
 
     now = datetime.now(timezone.utc)
-    classified_reviews = classify_reviews(reviews, gpt_client, now)
+    classified_reviews = classify_reviews(reviews, sentiment_agent, now)
 
     review_store.save_reviews(classified_reviews)
 
     # Only publish escalation trigger in Redis mode
     if DATA_STORE == "redis":
-        redis_host = os.getenv("REDIS_HOST", "localhost")
-        redis_client = redis.Redis(host=redis_host, port=6379, db=0)
         redis_client.publish("escalation_trigger", "run")
         logging.info("Published escalation trigger to Redis.")
 

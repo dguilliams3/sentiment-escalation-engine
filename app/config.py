@@ -45,3 +45,6 @@ CLASSIFIED_REVIEWS_FILE = os.getenv("CLASSIFIED_REVIEWS_FILE", "output/classifie
 # --- DATA STORE SETTINGS ---
 DATA_STORE = os.getenv("DATA_STORE", "local")
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+
+# --- MICROSERVICE SETTINGS ---
+RAW_REVIEW_KEY = os.getenv("RAW_REVIEW_KEY", "raw_reviews")

@@ -25,3 +25,14 @@ services:
       REDIS_HOST: redis
     depends_on:
       - redis
+
+  ingest_api:
+    build: .
+    image: dguilliams3/sentiment-escalation-engine-ingest-api
+    command: python submit_review.py
+    ports:
+      - "5000:5000"
+    environment:
+      REDIS_HOST: redis
+    depends_on:
+      - redis
