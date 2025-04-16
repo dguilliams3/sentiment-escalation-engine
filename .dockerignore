@@ -1,0 +1,27 @@
+# Python cache and virtual environment
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+
+# Output logs and generated data
+output/
+*.log
+
+# IDE/editor settings
+.vscode/
+*.swp
+*.sublime-project
+*.sublime-workspace
+
+# Data that shouldn't go into the image
+data/sample_reviews.json
+output/*
+.env
+
+# Git and OS metadata
+.git/
+.gitignore
+.DS_Store
+Thumbs.db
