@@ -26,7 +26,7 @@ class GPTClient:
         # Set model and maximum tokens for output.
         self._model = model
         self._max_tokens = max_tokens
-        
+        self.temperature = GPT_TEMPERATURE
         # Set a default prompt template for sentiment classification.
         self._prompt_template = prompt_template or (
             "Determine if the following review is positive, neutral, or negative:\n\n{review}"
@@ -56,7 +56,7 @@ class GPTClient:
 					model=self._model,
 					messages=[{"role": "user", "content": prompt}],
 					max_tokens=self._max_tokens,
-					temperature=0.7,
+					temperature=self.temperature,
 				)
                 logging.info(f"API call succeeded on attempt {attempt}")
                 # Extract and return the content of the response.

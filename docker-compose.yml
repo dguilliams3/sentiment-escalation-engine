@@ -1,0 +1,25 @@
+services:
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  classification:
+    build: .
+    command: python run_classification.py
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: redis
+    depends_on:
+      - redis
+
+  escalation:
+    build: .
+    command: python run_smart_escalation.py
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: redis
+    depends_on:
+      - redis

@@ -2,7 +2,7 @@ import json
 import os
 import redis
 import logging
-from config import DATA_STORE
+from config import *
 
 # Base interface
 class ReviewStore:
@@ -51,20 +51,21 @@ class LocalCooldownStore(CooldownStore):
 
 class RedisReviewStore(ReviewStore):
     def __init__(self):
-        self.client = redis.Redis(host='localhost', port=6379, db=0)
+        self.client = redis.Redis(host=REDIS_HOST, port=6379, db=0)
+        self.key = "classified_reviews"
 
     def load_reviews(self):
-        raw = self.client.get("classified_reviews")
+        raw = self.client.get(self.key)
         if raw:
             return json.loads(raw)
         return []
 
     def save_reviews(self, reviews):
-        self.client.set("classified_reviews", json.dumps(reviews))
+        self.client.set(self.key, json.dumps(reviews))
 
 class RedisCooldownStore(CooldownStore):
     def __init__(self):
-        self.client = redis.Redis(host='localhost', port=6379, db=0)
+        self.client = redis.Redis(host=REDIS_HOST, port=6379, db=0)
 
     def load_cooldowns(self):
         raw = self.client.get("cooldown_state")
@@ -109,7 +110,7 @@ class DecisionLogStore:
 
 class EscalationStore:
     def __init__(self):
-        self.client = redis.Redis(host='localhost', port=6379, db=0)
+        self.client = redis.Redis(host=REDIS_HOST, port=6379, db=0)
         self.key = "escalations"
 
     def save(self, escalations):

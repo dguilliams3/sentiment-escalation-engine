@@ -16,7 +16,7 @@ from datastore import get_stores, DecisionLogStore, EscalationStore
 from GPTClient import GPTClient
 from pipeline import group_reviews_by_product, evaluate_product
 
-from config import *  # Assuming config defines COOLDOWN_HOURS and ESCALATION_THRESHOLD
+from config import *
 from novelty_agent import NoveltyAgent
 
 # Configure application-level logging

@@ -42,6 +42,7 @@ if not reviews:
         with open("data/sample_reviews.json", "r", encoding="utf-8") as f:
             reviews = json.load(f)
         logging.info("No reviews found in store — loaded fallback sample_reviews.json")
+        review_store.save_reviews(reviews)
     except FileNotFoundError:
         logging.error("No reviews found and no sample_reviews.json file available.")
         sys.exit(1)
