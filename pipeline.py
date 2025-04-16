@@ -7,9 +7,13 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "app"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "agents"))
 
-from datastore import get_stores
 from agents.sentiment_agent import SentimentAgent
+from agents.explainability_agent import ExplainabilityAgent
+import GPTClient
+from config import *
 
+ENABLE_EXPLAINABILITY = os.getenv("ENABLE_EXPLAINABILITY", "true").lower() == "true"
+    
 def group_reviews_by_product(reviews):
     groups = defaultdict(list)
     for r in reviews:
@@ -60,17 +64,29 @@ def evaluate_product(product_id, product_reviews, cooldown_state, now, agent, co
         }
     return (escalate, reason, escalation_data)
 
-def classify_reviews(reviews, gpt_client, now):
-    sentiment_agent = SentimentAgent(gpt_client)
+def classify_reviews(reviews, now, sentiment_client=None, explanation_client=None):
+    # Default GPT clients if not provided
+    if sentiment_client is None:
+        sentiment_client = GPTClient()
+    if explanation_client is None:
+        explanation_client = GPTClient()
+
+    sentiment_agent = SentimentAgent(sentiment_client)
+    explain_agent = ExplainabilityAgent(explanation_client) if ENABLE_EXPLAINABILITY else None
+
     classified_reviews = []
 
     for r in reviews:
         sentiment = sentiment_agent.classify(r["text"])
+        explanation = explain_agent.explain(r["text"], sentiment) if explain_agent else None
+
         r["sentiment"] = sentiment
         r["classified_at"] = now.isoformat()
+        r["explanation"] = explanation
         classified_reviews.append(r)
 
     return classified_reviews
+
 
 def write_decision_log(log_lines, log_filepath="output/escalation_decision_log.jsonl"):
     with open(log_filepath, "a", encoding="utf-8") as f:

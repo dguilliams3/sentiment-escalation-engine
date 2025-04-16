@@ -24,3 +24,7 @@ data/sample_reviews.json
 .gitignore
 .DS_Store
 Thumbs.db
+
+# Local/Old dev testing scripts
+run_ingestor.py
+run_grouping.py

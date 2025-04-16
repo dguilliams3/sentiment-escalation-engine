@@ -48,3 +48,7 @@ REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 
 # --- MICROSERVICE SETTINGS ---
 RAW_REVIEW_KEY = os.getenv("RAW_REVIEW_KEY", "raw_reviews")
+
+# --- GPT MODELS ---
+SENTIMENT_MODEL = os.getenv("SENTIMENT_MODEL", GPT_MODEL)
+EXPLANATION_MODEL = os.getenv("EXPLANATION_MODEL", GPT_MODEL)

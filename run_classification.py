@@ -24,7 +24,9 @@ configure_logging(LOG_PATH)
 
 # --- Load stores + client ---
 review_store, _ = get_stores()
-sentiment_agent = GPTClient()
+sentiment_client = GPTClient(model=SENTIMENT_MODEL)
+explanation_client = GPTClient(model=EXPLANATION_MODEL)
+
 
 # --- Classification function ---
 def run_classification():
@@ -42,7 +44,7 @@ def run_classification():
             logging.warning("No reviews found in local fallback.")
 
     now = datetime.now(timezone.utc)
-    classified_reviews = classify_reviews(reviews, sentiment_agent, now)
+    classified_reviews = classify_reviews(reviews, now, sentiment_client, explanation_client)
 
     review_store.save_reviews(classified_reviews)
 
