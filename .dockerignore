@@ -17,7 +17,6 @@ output/
 
 # Data that shouldn't go into the image
 data/sample_reviews.json
-output/*
 .env
 
 # Git and OS metadata
