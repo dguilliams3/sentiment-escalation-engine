@@ -6,6 +6,7 @@ services:
 
   classification:
     build: .
+    image: dguilliams3/sentiment-escalation-engine-classification
     command: python run_classification.py
     env_file:
       - .env
@@ -16,6 +17,7 @@ services:
 
   escalation:
     build: .
+    image: dguilliams3/sentiment-escalation-engine-escalation
     command: python run_smart_escalation.py
     env_file:
       - .env
