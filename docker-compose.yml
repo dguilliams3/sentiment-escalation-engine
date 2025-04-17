@@ -1,24 +1,34 @@
+
 services:
   redis:
     image: redis:7
     ports:
       - "6379:6379"
 
-  classification:
-    build: .
-    image: dguilliams3/sentiment-escalation-engine-classification
-    command: python run_classification.py
+  novelty-service:
+    build:
+      context: .
+      dockerfile: novelty_service/Dockerfile
+    image: dguilliams3/sentiment-escalation-engine-novelty
+    container_name: novelty-service
+    ports:
+      - "5050:5050"
     env_file:
       - .env
     environment:
       REDIS_HOST: redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5050/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
     depends_on:
       - redis
 
-  escalation:
+  classification:
     build: .
-    image: dguilliams3/sentiment-escalation-engine-escalation
-    command: python run_smart_escalation.py
+    image: dguilliams3/sentiment-escalation-engine-classification
+    command: python run_classification.py
     env_file:
       - .env
     environment:
@@ -36,3 +46,17 @@ services:
       REDIS_HOST: redis
     depends_on:
       - redis
+
+  escalation:
+    build: .
+    image: dguilliams3/sentiment-escalation-engine-escalation
+    command: python run_smart_escalation.py
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: redis
+    depends_on:
+      redis:
+        condition: service_started
+      novelty-service:
+        condition: service_healthy

@@ -46,7 +46,7 @@ class LocalCooldownStore(CooldownStore):
             json.dump(cooldown_state, f, indent=4, ensure_ascii=False)
 
 # ----------------------------
-# Redis Implementation (Stub)
+# Redis Implementation
 # ----------------------------
 
 class RedisReviewStore(ReviewStore):
@@ -113,12 +113,38 @@ class EscalationStore:
         self.client = redis.Redis(host=REDIS_HOST, port=6379, db=0)
         self.key = "escalations"
 
-    def save(self, escalations):
-        self.client.set(self.key, json.dumps(escalations))
+    def save(self, new_escalations):
+        # Load existing store (dict of lists) or init empty
+        data = self.client.get(self.key)
+        if data:
+            store = json.loads(data)
+        else:
+            store = {}
+
+        for esc in new_escalations:
+            pid = esc.get("product_id")
+            if pid not in store:
+                store[pid] = []
+
+            # dedupe by reason + timestamp
+            exists = any(
+                e.get("reason") == esc.get("reason") and
+                e.get("escalated_at") == esc.get("escalated_at")
+                for e in store[pid]
+            )
+            if not exists:
+                store[pid].append({
+                    "reason": esc.get("reason"),
+                    "escalated_at": esc.get("escalated_at"),
+                    "negative_count": esc.get("negative_count"),
+                    "reviews": esc.get("reviews")
+                })
+
+        self.client.set(self.key, json.dumps(store))
 
     def load(self):
         data = self.client.get(self.key)
-        return json.loads(data) if data else []
+        return json.loads(data) if data else {}
 
     def clear(self):
         self.client.delete(self.key)

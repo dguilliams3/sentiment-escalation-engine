@@ -13,10 +13,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "agents"))
 import redis
 from logging_utils import configure_logging, ensure_log_dir
 from datastore import get_stores, DecisionLogStore, EscalationStore
-from GPTClient import GPTClient
-from novelty_agent import NoveltyAgent
 from pipeline import group_reviews_by_product, evaluate_product
 from config import *
+from remote_novelty_agent import RemoteNoveltyAgent
 
 # Setup logging
 APP_LOG_PATH = "output/smart_escalation.log"
@@ -30,8 +29,7 @@ escalation_store = EscalationStore()
 
 def run_pipeline():
     now = datetime.now(timezone.utc)
-    novelty_client = GPTClient()
-    novelty_agent = NoveltyAgent(novelty_client)
+    novelty_agent = RemoteNoveltyAgent()
 
     reviews = review_store.load_reviews()
     cooldown_state = cooldown_store.load_cooldowns()
