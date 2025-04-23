@@ -12,20 +12,22 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "app"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "agents"))
 
 from config import *
-from GPTClient import GPTClient
 from pipeline import classify_reviews
 from datastore import get_stores
 from logging_utils import configure_logging, ensure_log_dir
+from remote_sentiment_agent      import RemoteSentimentAgent
+from remote_explainability_agent import RemoteExplainabilityAgent
+
 
 # --- Logging setup ---
 LOG_PATH = "output/classification.log"
 ensure_log_dir(LOG_PATH)
 configure_logging(LOG_PATH)
 
-# --- Load stores + client ---
+# --- Load stores + remote agents (services) ---
 review_store, _ = get_stores()
-sentiment_client = GPTClient(model=SENTIMENT_MODEL)
-explanation_client = GPTClient(model=EXPLANATION_MODEL)
+sentiment_agent  = RemoteSentimentAgent()
+explain_agent    = RemoteExplainabilityAgent()
 
 
 # --- Classification function ---
@@ -44,7 +46,7 @@ def run_classification():
             logging.warning("No reviews found in local fallback.")
 
     now = datetime.now(timezone.utc)
-    classified_reviews = classify_reviews(reviews, now, sentiment_client, explanation_client)
+    classified_reviews = classify_reviews(reviews, now, sentiment_agent, explain_agent)
 
     review_store.save_reviews(classified_reviews)
 

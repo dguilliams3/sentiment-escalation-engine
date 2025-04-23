@@ -25,6 +25,46 @@ services:
     depends_on:
       - redis
 
+  sentiment-service:
+    build:
+      context: .
+      dockerfile: sentiment_service/Dockerfile
+    image: dguilliams3/sentiment-service
+    container_name: sentiment-service
+    ports:
+      - "5001:5001"
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    depends_on:
+      - redis
+
+  explainability-service:
+    build:
+      context: .
+      dockerfile: explainability_service/Dockerfile
+    image: dguilliams3/explainability-service
+    container_name: explainability-service
+    ports:
+      - "5002:5002"
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    depends_on:
+      - redis
+
   classification:
     build: .
     image: dguilliams3/sentiment-escalation-engine-classification
