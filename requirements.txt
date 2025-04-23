@@ -13,3 +13,4 @@ tiktoken
 # Back-end Data Management
 redis
 flask
+flask_cors

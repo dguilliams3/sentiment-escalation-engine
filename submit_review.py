@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import redis
 import os
 import json
 from datetime import datetime, timezone
 
 app = Flask(__name__)
+# open CORS for every endpoint & every origin (for local dev)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 RAW_REVIEW_KEY = os.getenv("RAW_REVIEW_KEY", "raw_reviews")
@@ -23,13 +26,12 @@ def submit_review():
     review = {
         "product_id": data["product_id"],
         "text": data["text"],
-        "created_at": data.get("created_at", now), # Use provided timestamp or current time
+        "created_at": data.get("created_at", now),
         "classified_at": None,
         "sentiment": None,
         "explanation": None
     }
 
-    # Load existing reviews, append new one
     raw_data = redis_client.get(RAW_REVIEW_KEY)
     existing_reviews = json.loads(raw_data) if raw_data else []
     existing_reviews.append(review)

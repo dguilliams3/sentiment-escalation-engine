@@ -84,6 +84,7 @@ services:
       - "5000:5000"
     environment:
       REDIS_HOST: redis
+      INGEST_URL: http://localhost:5000/submit_review
     depends_on:
       - redis
 
@@ -100,3 +101,18 @@ services:
         condition: service_started
       novelty-service:
         condition: service_healthy
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard_service/Dockerfile
+    image: dguilliams3/sentiment-escalation-engine-dashboard
+    container_name: dashboard
+    ports:
+      - "8080:8080"
+    environment:
+      INGEST_URL: http://localhost:5000/submit_review
+      REDIS_HOST: redis
+    depends_on:
+      - ingest_api
+      - redis
