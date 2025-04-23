@@ -1,4 +1,4 @@
-### **📦 Sentiment Escalation Pipeline – Multi-Agent GenAI System**
+# 📦 Sentiment Escalation Pipeline – Multi-Agent GenAI System
 
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
 ![Redis](https://img.shields.io/badge/Redis-Pub/Sub-red)
@@ -31,6 +31,10 @@
   - Novelty checked via a separate LLM-backed Flask service
   - Prompt temperature and models configured via `.env`
 
+- **📺 Live Dashboard (Flask)**  
+  - Interactive dashboard at `localhost:8080`  
+  - Submit reviews, inspect escalations, and explore Redis state in real time
+
 ---
 
 ## 📊 Workflow
@@ -45,16 +49,14 @@
 [SmartEscalationAgent]
    ↓
 [Optional: Novelty Check] → Escalate if novel or cooldown expired
-
 ```
 
-> [ ] = Docker container (Flask service)
-> 
+> [ ] = Docker container (Flask service)  
 > →   = Redis-triggered or HTTP-triggered transition
 
-- Escalation entries are stored in Redis under the escalations key, containing full review history, sentiment, rationale, and escalation reason.
-- Escalation rule: if ≥3 (configurable value) negative reviews for a product (outside cooldown), escalate.
-- If within cooldown, novelty check via GPT must return “yes” to allow escalation.
+- Escalation entries are stored in Redis under the `escalations` key
+- Escalation rule: if ≥3 (configurable) negative reviews for a product (outside cooldown), escalate
+- If within cooldown, novelty check via GPT must return “yes” to allow escalation
 
 ---
 
@@ -82,11 +84,23 @@
 | `ExplainabilityAgent`    | Flask Agent  | Redis pub/sub            | Adds explanation via GPT-4o                                  |
 | `SmartEscalationAgent`   | Flask Agent  | Redis pub/sub            | Applies rule-based escalation logic, may call novelty check  |
 | `novelty-service`        | REST API     | HTTP from Escalation     | Checks review novelty using GPT-4o                           |
+| `dashboard`              | Flask App    | Manual in browser        | Interactive dashboard showing live escalations, review submission, and Redis key inspection |
 | `redis`                  | System Core  | N/A                      | Pub/sub and KV store powering inter-agent coordination       |
 
-### Additional Note
+---
 
-> All Flask-based services **can be extended to expose REST endpoints** (e.g., `/status`, `/reclassify`) for testing, debugging, or orchestration. Currently only `ingest_api` and `novelty-service` expose HTTP routes by default.
+## 🌐 Live Dashboard
+
+- Run via Docker (`dashboard` service)
+- Accessible at: [http://localhost:8080](http://localhost:8080)
+- Features:
+  - Review submission UI
+  - Live escalation log
+  - Quick inject of batch samples (positive, negative)
+  - Redis debug inspectors for:
+    - `raw_reviews`
+    - `classified_reviews`
+    - `cooldown_state`
 
 ---
 
@@ -97,8 +111,7 @@
 - **Framework**: Flask (each agent)
 - **Deployment**: Docker + Docker Compose
 - **Storage**: Redis in-memory + optional `.jsonl` output logs
-  *Note: Redis is used both as a message bus (via pub/sub) and a temporary state store (via key-value records).*
-- **Config**: `.env` + static prompt strings (via f-strings) tailored per-agent
+- **Config**: `.env` + prompt templates via f-strings per agent
 
 ---
 
@@ -114,42 +127,116 @@
 
 ---
 
+## 🧪 Deployment
+
+```bash
+# Step 1: Build all services
+docker-compose build
+
+# Step 2: Run the system
+docker-compose up
+
+# Step 3: Visit the dashboard
+http://localhost:8080
+
+# Step 4: Push to DockerHub (optional)
+docker-compose push
+```
+
+---
+
+### 📄 Environment Variables (`.env`)
+
+Create a `.env` file in your project root to configure model behavior, Redis settings, and escalation logic.
+
+```env
+# Required for OpenAI API access
+OPENAI_API_KEY=sk-...
+
+# GPT Model settings (defaults shown)
+GPT_MODEL=gpt-4o-mini
+GPT_MAX_TOKENS=6000
+GPT_TEMPERATURE=0.3
+
+# Escalation logic
+COOLDOWN_HOURS=6
+ESCALATION_THRESHOLD=3
+
+# Output file paths
+ESCALATIONS_OUTPUT=output/escalations.json
+COOLDOWN_FILE=output/cooldown_state.json
+DECISION_LOG_FILE=output/escalation_decision_log.jsonl
+CLASSIFIED_REVIEWS_FILE=output/classified_reviews.json
+
+# Redis config
+DATA_STORE=redis
+REDIS_HOST=redis
+RAW_REVIEW_KEY=raw_reviews
+
+# Optional (default = same as GPT_MODEL)
+SENTIMENT_MODEL=gpt-4o-mini
+EXPLANATION_MODEL=gpt-4o-mini
+
+# Optional logging config
+LOG_USERNAME=admin
+LOG_PASSWORD=password
+LOG_FILE_PATH=./logs/context_log.log
+```
+
+---
+
 ## 🔮 Planned Enhancements
 
 - **🔁 Feedback Loop (Human-in-the-Loop)**
   - Allow human reviewers to submit corrections or overrides
-  - Store reviewed samples for prompt optimization or fine-tuning candidates
 
 - **📊 Confidence Scoring + Prompt Lineage**
-  - Add lightweight scoring layer (token count heuristics, prior prompt match rate)
-  - Track per-agent prompt versions and escalation outcomes
+  - Add scoring layer + version tracking for each agent
 
 - **📈 Monitoring + Metrics Collection**
-  - Integrate basic telemetry per agent (e.g., messages processed, GPT latency, token usage)
-  - Output logs to structured format for optional ingestion into ELK/Prometheus stack
+  - Track token usage, agent call counts, latency
 
-- **📜 Prompt Template Management via Database**
-  - Move agent prompts from hardcoded strings to versioned rows in PostgreSQL
-  - Enable per-agent prompt lookup by `agent_name`, `version`, and `active` flag
-  - Future-proofed for:
-    - Live prompt switching without redeploy
-    - Prompt lineage audits for escalated or misclassified reviews
-    - Logging which prompt generated which outcome
+- **📜 Prompt Management via Database**
+  - Swap hardcoded f-strings for PostgreSQL-backed templates
 
 - **🧠 Model Configuration Layer**
-  - Add support for multiple model endpoints or routing by workload type
+  - Support multiple GPT models or endpoints
 
 - **🧩 REST API Extensions**
-  - Add new routes to:
-    - Retrieve escalations
-    - Query product sentiment history
-    - Submit feedback or corrections
-    - Trigger re-evaluation for past reviews
+  - Add query routes for historical sentiment or review reprocessing
 
 - **📦 Persistence + Store Integration**
-  - Swap Redis with optional Postgres backend for long-term review storage
-  - Add support for batch ingestion and historical retrieval
+  - Optional Postgres storage layer for long-term product review tracking
 
-- **🔐 Auth & Access Layers**
-  - Add API key validation or JWT-based auth layer on `/submit_review`
-  - Optional access tiers for read/write/admin review
+- **🔐 Auth & Access**
+  - Add JWT/API key protection on ingest routes
+
+---
+
+## 📂 Folder Structure
+
+```
+├── agents/
+│   ├── sentiment_agent.py
+│   ├── explainability_agent.py
+│   ├── remote_sentiment_agent.py
+│   └── remote_explainability_agent.py
+├── app/
+│   └── GPTClient.py
+├── novelty_service/
+│   └── service.py
+├── sentiment_service/
+│   └── service.py
+├── explainability_service/
+│   └── service.py
+├── dashboard_service/
+│   └── service.py
+├── run_classification.py
+├── run_smart_escalation.py
+├── submit_review.py
+├── pipeline.py
+├── Dockerfile
+├── docker-compose.yml
+├── .env
+└── README.md
+```
